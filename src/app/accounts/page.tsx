@@ -117,15 +117,15 @@ function AccountsPage() {
                         handleAccountChange(category.id, value)
                       }
                     >
-                      <SelectTrigger className="w-[240px] bg-white text-gray-900 border-gray-300 shadow-sm cursor-pointer hover:bg-gray-200 hover:border-gray-400 focus:outline-none">
+                      <SelectTrigger className="w-[240px] bg-white text-gray-900 border-gray-300 hover:bg-blue-50 cursor-pointer">
                         <SelectValue placeholder="Select account" />
                       </SelectTrigger>
-                      <SelectContent className="max-h-[200px] overflow-y-auto bg-white border border-gray-300 shadow-lg">
+                      <SelectContent className="bg-white border border-gray-300 shadow-lg">
                         {accounts.map((account) => (
                           <SelectItem
                             key={account.id}
                             value={account.id}
-                            className="text-gray-900 cursor-pointer hover:bg-gray-200"
+                            className="text-gray-900 cursor-pointer hover:bg-blue-50 hover:text-blue-600"
                           >
                             {account.name}
                           </SelectItem>
@@ -145,21 +145,23 @@ function AccountsPage() {
         </div>
         <div className="flex space-x-2">
           <Button
-            variant="outline"
+            variant="secondary"
             size="sm"
             onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
             disabled={currentPage === 1}
+            className="bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-300 hover:bg-blue-100 hover:text-blue-700 dark:hover:bg-blue-700 dark:hover:text-blue-100"
           >
             <ChevronLeft className="h-4 w-4" />
             Previous
           </Button>
           <Button
-            variant="outline"
+            variant="secondary"
             size="sm"
             onClick={() =>
               setCurrentPage((prev) => Math.min(prev + 1, totalPages))
             }
             disabled={currentPage === totalPages}
+            className="bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-300 hover:bg-blue-100 hover:text-blue-700 dark:hover:bg-blue-700 dark:hover:text-blue-100"
           >
             Next
             <ChevronRight className="h-4 w-4" />

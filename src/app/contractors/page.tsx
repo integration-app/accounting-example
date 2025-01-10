@@ -120,7 +120,7 @@ function ContractorsPage() {
                         handleVendorChange(contractor.id, value)
                       }
                     >
-                      <SelectTrigger className="w-[240px] bg-white text-gray-950 border-gray-300 shadow-sm cursor-pointer hover:bg-gray-100 font-medium">
+                      <SelectTrigger className="w-[240px] bg-white text-gray-900 border-gray-300 hover:bg-blue-50 cursor-pointer">
                         <SelectValue
                           placeholder="Select vendor"
                           className="text-gray-500"
@@ -131,7 +131,7 @@ function ContractorsPage() {
                           <SelectItem
                             key={vendor.id}
                             value={vendor.id}
-                            className="text-gray-950 cursor-pointer hover:bg-gray-100 font-medium"
+                            className="text-gray-900 cursor-pointer hover:text-gray-950"
                           >
                             {vendor.name}
                           </SelectItem>
@@ -151,21 +151,23 @@ function ContractorsPage() {
         </div>
         <div className="flex space-x-2">
           <Button
-            variant="outline"
+            variant="secondary"
             size="sm"
             onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
             disabled={currentPage === 1}
+            className="bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-300 hover:bg-blue-100 hover:text-blue-700 dark:hover:bg-blue-700 dark:hover:text-blue-100"
           >
             <ChevronLeft className="h-4 w-4" />
             Previous
           </Button>
           <Button
-            variant="outline"
+            variant="secondary"
             size="sm"
             onClick={() =>
               setCurrentPage((prev) => Math.min(prev + 1, totalPages))
             }
             disabled={currentPage === totalPages}
+            className="bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-300 hover:bg-blue-100 hover:text-blue-700 dark:hover:bg-blue-700 dark:hover:text-blue-100"
           >
             Next
             <ChevronRight className="h-4 w-4" />
