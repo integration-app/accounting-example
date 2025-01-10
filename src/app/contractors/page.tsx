@@ -21,18 +21,16 @@ import {
 import useSWR from "swr";
 import { useIntegrationApp } from "@integration-app/react";
 
-interface Account {
-  links: {
-    rel: string;
-    href: string;
-  }[];
+interface Vendor {
   id: string;
+  entityId: string;
+  name: string;
 }
 
 interface Contractor {
   id: string;
   name: string;
-  accountId?: string;
+  vendorId?: string;
 }
 
 const dummyContractors: Contractor[] = [
@@ -65,20 +63,20 @@ function ContractorsPage() {
   const totalPages = Math.ceil(contractors.length / itemsPerPage);
   const integrationApp = useIntegrationApp();
 
-  const { data: accountsResponse } = useSWR("accounts", async () => {
+  const { data: vendorsResponse } = useSWR("vendors", async () => {
     const cursor = {};
     const response = await integrationApp
       .connection("netsuite")
-      .action("get-accounts")
+      .action("get-vendors")
       .run(cursor);
 
     return response.output.records;
   });
 
-  const accounts = React.useMemo(() => {
-    if (!accountsResponse || !Array.isArray(accountsResponse)) return [];
-    return accountsResponse as Account[];
-  }, [accountsResponse]);
+  const vendors = React.useMemo(() => {
+    if (!vendorsResponse || !Array.isArray(vendorsResponse)) return [];
+    return vendorsResponse as Vendor[];
+  }, [vendorsResponse]);
 
   const paginatedContractors = React.useMemo(() => {
     const startIndex = (currentPage - 1) * itemsPerPage;
@@ -86,11 +84,11 @@ function ContractorsPage() {
     return contractors.slice(startIndex, endIndex);
   }, [currentPage, contractors]);
 
-  const handleAccountChange = (contractorId: string, accountId: string) => {
+  const handleVendorChange = (contractorId: string, vendorId: string) => {
     setContractors((prev) =>
       prev.map((contractor) =>
         contractor.id === contractorId
-          ? { ...contractor, accountId }
+          ? { ...contractor, vendorId }
           : contractor
       )
     );
@@ -98,42 +96,54 @@ function ContractorsPage() {
 
   return (
     <div className="container mx-auto py-10">
-      <h1 className="text-3xl font-bold tracking-tight mb-4">Contractors</h1>
-      <div className="rounded-md border">
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>Name</TableHead>
-              <TableHead>Account</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {paginatedContractors.map((contractor) => (
-              <TableRow key={contractor.id}>
-                <TableCell>{contractor.name}</TableCell>
-                <TableCell>
-                  <Select
-                    value={contractor.accountId}
-                    onValueChange={(value: string) =>
-                      handleAccountChange(contractor.id, value)
-                    }
-                  >
-                    <SelectTrigger className="w-[240px]">
-                      <SelectValue placeholder="Select account" />
-                    </SelectTrigger>
-                    <SelectContent className="max-h-[200px] overflow-y-auto">
-                      {accounts.map((account) => (
-                        <SelectItem key={account.id} value={account.id}>
-                          {account.id}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </TableCell>
+      <div className="flex flex-col gap-4">
+        <div>
+          <h1 className="text-3xl font-bold tracking-tight">Contractors</h1>
+          <p className="text-muted-foreground">Manage your contractors</p>
+        </div>
+        <div className="rounded-md border">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Name</TableHead>
+                <TableHead>Vendor</TableHead>
               </TableRow>
-            ))}
-          </TableBody>
-        </Table>
+            </TableHeader>
+            <TableBody>
+              {paginatedContractors.map((contractor) => (
+                <TableRow key={contractor.id}>
+                  <TableCell>{contractor.name}</TableCell>
+                  <TableCell>
+                    <Select
+                      value={contractor.vendorId}
+                      onValueChange={(value: string) =>
+                        handleVendorChange(contractor.id, value)
+                      }
+                    >
+                      <SelectTrigger className="w-[240px] bg-white text-gray-950 border-gray-300 shadow-sm cursor-pointer hover:bg-gray-100 font-medium">
+                        <SelectValue
+                          placeholder="Select vendor"
+                          className="text-gray-500"
+                        />
+                      </SelectTrigger>
+                      <SelectContent className="bg-white border border-gray-300 shadow-lg">
+                        {vendors.map((vendor) => (
+                          <SelectItem
+                            key={vendor.id}
+                            value={vendor.id}
+                            className="text-gray-950 cursor-pointer hover:bg-gray-100 font-medium"
+                          >
+                            {vendor.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </div>
       </div>
       <div className="flex items-center justify-between space-x-2 py-4">
         <div className="text-sm text-muted-foreground">

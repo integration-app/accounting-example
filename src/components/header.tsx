@@ -54,6 +54,12 @@ export function Header() {
               >
                 Contractors
               </Link>
+              <Link
+                href="/accounts"
+                className="inline-flex items-center px-1 pt-1 text-sm font-medium"
+              >
+                Accounts
+              </Link>
             </div>
           </div>
           <div className="flex items-center">

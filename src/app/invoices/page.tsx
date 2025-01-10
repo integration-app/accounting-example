@@ -4,15 +4,12 @@ import * as React from "react";
 import {
   Table,
   TableBody,
-  TableCell,
   TableHead,
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
-import { RefreshCw, Plus } from "lucide-react";
-import { useIntegrationApp } from "@integration-app/react";
-import useSWR from "swr";
+import { Plus, Power } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -22,58 +19,17 @@ import {
 } from "@/components/ui/dialog";
 import { InvoiceForm } from "./components/invoice-form";
 
-interface Invoice {
-  id: string;
-  status?: string;
-  amount?: string | number;
-  date?: string;
-}
-
 function InvoicesPage() {
-  const [isImporting, setIsImporting] = React.useState(false);
   const [isDialogOpen, setIsDialogOpen] = React.useState(false);
-  const integrationApp = useIntegrationApp();
-  const {
-    data: invoicesResponse,
-    error,
-    mutate,
-  } = useSWR("invoices", async () => {
-    const response = await integrationApp
-      .connection("netsuite")
-      .action("list-invoices")
-      .run();
-    return response.output.records;
-  });
+  const [isSyncEnabled, setIsSyncEnabled] = React.useState(false);
 
-  const invoices = React.useMemo(() => {
-    if (!invoicesResponse || !Array.isArray(invoicesResponse)) return [];
-    return invoicesResponse as Invoice[];
-  }, [invoicesResponse]);
-
-  const handleImport = async () => {
-    try {
-      setIsImporting(true);
-      await integrationApp.connection("netsuite").action("list-invoices").run();
-      await mutate(); // Refresh the data
-    } catch (error) {
-      console.error("Failed to import invoices:", error);
-    } finally {
-      setIsImporting(false);
-    }
-  };
-
-  const handleCreateSuccess = async () => {
+  const handleCreateSuccess = () => {
     setIsDialogOpen(false);
-    await mutate(); // Refresh the list after creating
   };
 
-  if (error) {
-    return <div>Error loading invoices</div>;
-  }
-
-  if (!invoices) {
-    return <div>Loading...</div>;
-  }
+  const handleToggleSync = () => {
+    setIsSyncEnabled(!isSyncEnabled);
+  };
 
   return (
     <div className="container mx-auto py-10">
@@ -84,9 +40,24 @@ function InvoicesPage() {
             <p className="text-muted-foreground">Manage your invoices</p>
           </div>
           <div className="flex gap-2">
+            <Button
+              variant="secondary"
+              className={
+                isSyncEnabled
+                  ? "bg-red-100 text-red-700 dark:bg-red-700 dark:text-red-100 hover:bg-red-200 hover:text-red-800 dark:hover:bg-red-800 dark:hover:text-red-100"
+                  : "bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-300 hover:bg-blue-100 hover:text-blue-700 dark:hover:bg-blue-700 dark:hover:text-blue-100"
+              }
+              onClick={handleToggleSync}
+            >
+              <Power className="mr-2 h-4 w-4" />
+              {isSyncEnabled ? "Disable Sync" : "Enable Sync"}
+            </Button>
             <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
               <DialogTrigger asChild>
-                <Button>
+                <Button
+                  variant="secondary"
+                  className="bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-300 hover:bg-blue-100 hover:text-blue-700 dark:hover:bg-blue-700 dark:hover:text-blue-100"
+                >
                   <Plus className="mr-2 h-4 w-4" />
                   Create Invoice
                 </Button>
@@ -101,12 +72,6 @@ function InvoicesPage() {
                 />
               </DialogContent>
             </Dialog>
-            <Button onClick={handleImport} disabled={isImporting}>
-              <RefreshCw
-                className={`mr-2 h-4 w-4 ${isImporting ? "animate-spin" : ""}`}
-              />
-              {isImporting ? "Importing..." : "Import Invoices"}
-            </Button>
           </div>
         </div>
         <div className="rounded-md border">
@@ -119,16 +84,7 @@ function InvoicesPage() {
                 <TableHead>Date</TableHead>
               </TableRow>
             </TableHeader>
-            <TableBody>
-              {invoices.map((invoice) => (
-                <TableRow key={invoice.id}>
-                  <TableCell>{invoice.id}</TableCell>
-                  <TableCell>{invoice.status}</TableCell>
-                  <TableCell>{invoice.amount}</TableCell>
-                  <TableCell>{invoice.date}</TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
+            <TableBody></TableBody>
           </Table>
         </div>
       </div>
