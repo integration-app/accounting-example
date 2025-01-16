@@ -1,7 +1,21 @@
-export default function AccountsLayout({
-  children,
-}: {
+import { Metadata } from "next";
+import { Suspense } from 'react';
+import LoadingSpinner from '@/components/LoadingSpinner';
+
+export const metadata: Metadata = {
+  title: "Categories",  // Keep the title as "Categories" since it refers to the content
+};
+
+interface CategoriesLayoutProps {
   children: React.ReactNode;
-}) {
-  return <div className="flex-1">{children}</div>;
+}
+
+export default function CategoriesLayout({
+  children,
+}: CategoriesLayoutProps) {
+  return (
+    <Suspense fallback={<LoadingSpinner />}>
+      {children}
+    </Suspense>
+  );
 }

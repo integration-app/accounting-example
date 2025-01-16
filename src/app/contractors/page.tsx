@@ -10,7 +10,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { ChevronLeft, ChevronRight, X } from "lucide-react";
 import {
   Select,
   SelectContent,
@@ -20,6 +20,8 @@ import {
 } from "@/components/ui/select";
 import useSWR from "swr";
 import { useIntegrationApp } from "@integration-app/react";
+import LoadingSpinner from '@/components/LoadingSpinner';
+import { toast } from '@/components/ui/use-toast';
 
 interface Vendor {
   id: string;
@@ -28,71 +30,126 @@ interface Vendor {
 }
 
 interface Contractor {
-  id: string;
+  _id: string;
   name: string;
   vendorId?: string;
 }
 
-const dummyContractors: Contractor[] = [
-  { id: "c1", name: "John Smith" },
-  { id: "c2", name: "Sarah Johnson" },
-  { id: "c3", name: "Michael Brown" },
-  { id: "c4", name: "Emily Davis" },
-  { id: "c5", name: "David Wilson" },
-  { id: "c6", name: "Lisa Anderson" },
-  { id: "c7", name: "James Taylor" },
-  { id: "c8", name: "Jennifer Martinez" },
-  { id: "c9", name: "Robert Thompson" },
-  { id: "c10", name: "Jessica White" },
-  { id: "c11", name: "William Clark" },
-  { id: "c12", name: "Elizabeth Lee" },
-  { id: "c13", name: "Christopher Rodriguez" },
-  { id: "c14", name: "Michelle Lewis" },
-  { id: "c15", name: "Daniel Walker" },
-  { id: "c16", name: "Amanda Hall" },
-  { id: "c17", name: "Kevin Young" },
-  { id: "c18", name: "Melissa King" },
-  { id: "c19", name: "Thomas Wright" },
-  { id: "c20", name: "Laura Scott" },
-];
-
-function ContractorsPage() {
+export default function ContractorsPage() {
   const [currentPage, setCurrentPage] = React.useState(1);
-  const [contractors, setContractors] = React.useState(dummyContractors);
   const itemsPerPage = 10;
-  const totalPages = Math.ceil(contractors.length / itemsPerPage);
   const integrationApp = useIntegrationApp();
 
-  const { data: vendorsResponse } = useSWR("vendors", async () => {
-    const cursor = {};
-    const response = await integrationApp
-      .connection("netsuite")
-      .action("get-vendors")
-      .run(cursor);
+  // Fetch contractors from our API
+  const { data: contractors, isLoading: isContractorsLoading, mutate: mutateContractors } = useSWR<Contractor[]>(
+    '/api/contractors',
+    async (url) => {
+      const response = await fetch(url);
+      if (!response.ok) throw new Error('Failed to fetch contractors');
+      return response.json();
+    }
+  );
 
-    return response.output.records;
-  });
+  // Fetch vendors from Integration.app
+  const { data: vendorsResponse, isLoading: isVendorsLoading } = useSWR(
+    "vendors",
+    async () => {
+      const cursor = {};
+      const response = await integrationApp
+        .connection("netsuite")
+        .action("get-vendors")
+        .run(cursor);
+
+      return response.output.records;
+    },
+    {
+      revalidateOnFocus: false,
+      revalidateOnReconnect: false,
+    }
+  );
 
   const vendors = React.useMemo(() => {
     if (!vendorsResponse || !Array.isArray(vendorsResponse)) return [];
     return vendorsResponse as Vendor[];
   }, [vendorsResponse]);
 
+  const totalPages = Math.ceil((contractors?.length || 0) / itemsPerPage);
+
   const paginatedContractors = React.useMemo(() => {
+    if (!contractors) return [];
     const startIndex = (currentPage - 1) * itemsPerPage;
     const endIndex = startIndex + itemsPerPage;
     return contractors.slice(startIndex, endIndex);
   }, [currentPage, contractors]);
 
-  const handleVendorChange = (contractorId: string, vendorId: string) => {
-    setContractors((prev) =>
-      prev.map((contractor) =>
-        contractor.id === contractorId
-          ? { ...contractor, vendorId }
-          : contractor
-      )
-    );
+  const handleVendorChange = async (contractorId: string, vendorId: string) => {
+    try {
+      const response = await fetch(`/api/contractors/${contractorId}`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ vendorId }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to update contractor');
+      }
+
+      // Revalidate the contractors data
+      await mutateContractors();
+
+      toast({
+        title: "Success",
+        description: "Contractor mapping updated successfully",
+      });
+    } catch (error) {
+      console.error('Error updating contractor:', error);
+      toast({
+        title: "Error",
+        description: "Failed to update contractor mapping",
+        variant: "destructive",
+      });
+    }
   };
+
+  const handleUnmap = async (contractorId: string) => {
+    try {
+      const response = await fetch(`/api/contractors/${contractorId}`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ vendorId: null }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to unmap contractor');
+      }
+
+      await mutateContractors();
+
+      toast({
+        title: "Success",
+        description: "Contractor unmapped successfully",
+      });
+    } catch (error) {
+      console.error('Error unmapping contractor:', error);
+      toast({
+        title: "Error",
+        description: "Failed to unmap contractor",
+        variant: "destructive",
+      });
+    }
+  };
+
+  if (isVendorsLoading || isContractorsLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <LoadingSpinner />
+      </div>
+    );
+  }
 
   return (
     <div className="container mx-auto py-10">
@@ -111,33 +168,46 @@ function ContractorsPage() {
             </TableHeader>
             <TableBody>
               {paginatedContractors.map((contractor) => (
-                <TableRow key={contractor.id}>
+                <TableRow key={contractor._id}>
                   <TableCell>{contractor.name}</TableCell>
                   <TableCell>
-                    <Select
-                      value={contractor.vendorId}
-                      onValueChange={(value: string) =>
-                        handleVendorChange(contractor.id, value)
-                      }
-                    >
-                      <SelectTrigger className="w-[240px] bg-white text-gray-900 border-gray-300 hover:bg-blue-50 cursor-pointer">
-                        <SelectValue
-                          placeholder="Select vendor"
-                          className="text-gray-500"
-                        />
-                      </SelectTrigger>
-                      <SelectContent className="bg-white border border-gray-300 shadow-lg">
-                        {vendors.map((vendor) => (
-                          <SelectItem
-                            key={vendor.id}
-                            value={vendor.id}
-                            className="text-gray-900 cursor-pointer hover:text-gray-950"
-                          >
-                            {vendor.name}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
+                    <div className="flex items-center gap-2">
+                      <Select
+                        value={contractor.vendorId || ""}
+                        onValueChange={(value: string) =>
+                          handleVendorChange(contractor._id, value)
+                        }
+                      >
+                        <SelectTrigger className="w-[240px] bg-white text-gray-900 border-gray-300 hover:bg-blue-50 cursor-pointer">
+                          <SelectValue
+                            placeholder="---"
+                            className="text-gray-500"
+                          />
+                        </SelectTrigger>
+                        <SelectContent className="bg-white border border-gray-300 shadow-lg">
+                          {vendors.map((vendor) => (
+                            <SelectItem
+                              key={vendor.id}
+                              value={vendor.id}
+                              className="text-gray-900 cursor-pointer hover:text-gray-950"
+                            >
+                              {vendor.name}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      {contractor.vendorId && (
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => handleUnmap(contractor._id)}
+                          className="h-8 w-8 p-0 hover:bg-red-100 hover:text-red-700"
+                          title="Unmap vendor"
+                        >
+                          <X className="h-4 w-4" />
+                        </Button>
+                      )}
+                    </div>
                   </TableCell>
                 </TableRow>
               ))}
@@ -177,5 +247,3 @@ function ContractorsPage() {
     </div>
   );
 }
-
-export default ContractorsPage;

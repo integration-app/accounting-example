@@ -28,7 +28,7 @@ export function IntegrationList() {
 
   return (
     <ul className="space-y-4 mt-8">
-      {integrations.map((integration) => (
+      {integrations.filter((integration) => integration.key == "netsuite").map((integration) => ( //Only show Netsuite
         <li
           key={integration.key}
           className="group flex items-center space-x-4 p-4 bg-white dark:bg-gray-800 rounded-lg shadow"

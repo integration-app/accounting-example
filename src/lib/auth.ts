@@ -52,4 +52,10 @@ export function clearAuth(): void {
   if (typeof window === 'undefined') return;
   localStorage.removeItem(AUTH_ID_KEY);
   localStorage.removeItem(CUSTOMER_NAME_KEY);
+}
+
+export function getAuthToken(): string | null {
+  // If you're using a specific auth solution, implement the token retrieval here
+  // For now, we'll return null or you can implement your own logic
+  return null;
 } 

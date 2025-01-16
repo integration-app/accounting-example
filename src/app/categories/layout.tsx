@@ -3,19 +3,19 @@ import { Suspense } from 'react';
 import LoadingSpinner from '@/components/LoadingSpinner';
 
 export const metadata: Metadata = {
-  title: "Contractors",
+  title: "Categories",
 };
 
-interface ContractorsLayoutProps {
+interface CategoriesLayoutProps {
   children: React.ReactNode;
 }
 
-export default function ContractorsLayout({
+export default function CategoriesLayout({
   children,
-}: ContractorsLayoutProps) {
+}: CategoriesLayoutProps) {
   return (
     <Suspense fallback={<LoadingSpinner />}>
       {children}
     </Suspense>
   );
-}
+} 
