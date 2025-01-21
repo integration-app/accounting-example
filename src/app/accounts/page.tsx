@@ -20,6 +20,7 @@ import {
 } from "@/components/ui/select";
 import useSWR from "swr";
 import { useIntegrationApp } from "@integration-app/react";
+import { useRouter } from "next/navigation";
 
 interface Account {
   id: string;
@@ -30,6 +31,7 @@ interface Category {
   id: string;
   name: string;
   accountId?: string;
+  selected?: boolean;
 }
 
 const dummyCategories: Category[] = [
@@ -58,15 +60,19 @@ const dummyCategories: Category[] = [
 function AccountsPage() {
   const [currentPage, setCurrentPage] = React.useState(1);
   const [categories, setCategories] = React.useState(dummyCategories);
+  const [selectedCategories, setSelectedCategories] = React.useState<string[]>(
+    []
+  );
   const itemsPerPage = 10;
   const totalPages = Math.ceil(categories.length / itemsPerPage);
   const integrationApp = useIntegrationApp();
+  const router = useRouter();
 
   const { data: accountsResponse } = useSWR("accounts", async () => {
     const cursor = {};
     const response = await integrationApp
       .connection("netsuite")
-      .action("get-accounts")
+      .action("list-ledger-accounts")
       .run(cursor);
 
     return response.output.records;
@@ -91,17 +97,61 @@ function AccountsPage() {
     );
   };
 
+  const handleCategorySelect = (categoryId: string) => {
+    setSelectedCategories((prev) =>
+      prev.includes(categoryId)
+        ? prev.filter((id) => id !== categoryId)
+        : [...prev, categoryId]
+    );
+  };
+
+  const handleImportJournalEntries = () => {
+    const selectedCats: Category[] = categories.filter(
+      (cat) => selectedCategories.includes(cat.id) && cat.accountId
+    );
+
+    if (selectedCats.length === 0) {
+      alert("Please select at least one category with an assigned account");
+      return;
+    }
+
+    const selectedAccountIds = selectedCats
+      .map((cat: Category) => cat.accountId)
+      .filter(Boolean);
+    const selectedAccountNames = selectedCats
+      .map(
+        (cat: Category) => accounts.find((a) => a.id === cat.accountId)?.name
+      )
+      .filter((name): name is string => name !== undefined)
+      .map((name) => encodeURIComponent(name));
+
+    const searchParams = new URLSearchParams();
+    searchParams.set("accounts", selectedAccountIds.join(","));
+    searchParams.set("accountNames", selectedAccountNames.join(","));
+    router.push(`/journal-entries?${searchParams.toString()}`);
+  };
+
   return (
     <div className="container mx-auto py-10">
       <div className="flex flex-col gap-4">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight">Accounts</h1>
-          <p className="text-muted-foreground">Manage your accounts</p>
+        <div className="flex justify-between items-center">
+          <div>
+            <h1 className="text-3xl font-bold tracking-tight">Accounts</h1>
+            <p className="text-muted-foreground">Manage your accounts</p>
+          </div>
+          <Button
+            onClick={handleImportJournalEntries}
+            disabled={selectedCategories.length === 0}
+            className="bg-blue-600 text-white hover:bg-blue-700"
+          >
+            Import Journal Entries
+          </Button>
         </div>
         <div className="rounded-md border">
           <Table>
             <TableHeader>
               <TableRow>
+                <TableHead className="w-12">Select</TableHead>
                 <TableHead>Category</TableHead>
                 <TableHead>Account</TableHead>
               </TableRow>
@@ -109,6 +159,14 @@ function AccountsPage() {
             <TableBody>
               {paginatedCategories.map((category) => (
                 <TableRow key={category.id}>
+                  <TableCell>
+                    <input
+                      type="checkbox"
+                      checked={selectedCategories.includes(category.id)}
+                      onChange={() => handleCategorySelect(category.id)}
+                      className="h-4 w-4 rounded border-gray-300"
+                    />
+                  </TableCell>
                   <TableCell>{category.name}</TableCell>
                   <TableCell>
                     <Select
@@ -120,7 +178,7 @@ function AccountsPage() {
                       <SelectTrigger className="w-[240px] bg-white text-gray-900 border-gray-300 hover:bg-blue-50 cursor-pointer">
                         <SelectValue placeholder="Select account" />
                       </SelectTrigger>
-                      <SelectContent className="bg-white border border-gray-300 shadow-lg">
+                      <SelectContent className="bg-white border border-gray-300 shadow-lg max-h-[300px] overflow-y-auto">
                         {accounts.map((account) => (
                           <SelectItem
                             key={account.id}
