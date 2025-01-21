@@ -224,7 +224,7 @@ export default function JournalEntriesPage() {
                   type="date"
                   value={fromDate}
                   onChange={(e) => setFromDate(e.target.value)}
-                  className="w-[200px]"
+                  className="w-[200px] [&::-webkit-calendar-picker-indicator]:cursor-pointer [&::-webkit-calendar-picker-indicator]:transition-opacity [&::-webkit-calendar-picker-indicator]:hover:opacity-60"
                 />
               )}
             </div>
@@ -252,7 +252,7 @@ export default function JournalEntriesPage() {
                   type="date"
                   value={toDate}
                   onChange={(e) => setToDate(e.target.value)}
-                  className="w-[200px]"
+                  className="w-[200px] [&::-webkit-calendar-picker-indicator]:cursor-pointer [&::-webkit-calendar-picker-indicator]:transition-opacity [&::-webkit-calendar-picker-indicator]:hover:opacity-60"
                 />
               )}
             </div>
