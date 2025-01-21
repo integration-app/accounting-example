@@ -31,23 +31,12 @@ export function Header() {
               >
                 Integrations
               </Link>
-              <Link
-                href="/contractors"
-                className="inline-flex items-center px-1 pt-1 text-sm font-medium"
-              >
-                Contractors
-              </Link>
+
               <Link
                 href="/accounts"
                 className="inline-flex items-center px-1 pt-1 text-sm font-medium"
               >
                 Accounts
-              </Link>
-              <Link
-                href="/invoices"
-                className="inline-flex items-center px-1 pt-1 text-sm font-medium"
-              >
-                Invoices
               </Link>
             </div>
           </div>
