@@ -1,7 +1,8 @@
 import { Connection, Promise } from "mongoose";
 
 declare global {
-  let mongoose: {
+  // eslint-disable-next-line no-var
+  var mongoose: {
     conn: Connection | null;
     promise: Promise<Connection> | null;
   };

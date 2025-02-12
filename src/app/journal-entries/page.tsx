@@ -46,7 +46,9 @@ interface JournalEntriesParams {
 }
 
 const formatDate = (dateString: string | null | undefined) => {
-  if (!dateString) return "-";
+  if (!dateString) {
+    return "-";
+  }
 
   try {
     // Try parsing as ISO date first
@@ -109,7 +111,7 @@ export default function JournalEntriesPage() {
 
   const totalPages = Math.ceil(journalEntries.length / itemsPerPage);
 
-  const fetchJournalEntries = async () => {
+  const fetchJournalEntries = React.useCallback(async () => {
     if (!accountIds.length) {
       setError("No accounts selected");
       return;
@@ -121,7 +123,9 @@ export default function JournalEntriesPage() {
       const allEntries: JournalEntry[] = [];
 
       for (const accountId of accountIds) {
-        if (!accountId) continue;
+        if (!accountId) {
+          continue;
+        }
 
         try {
           const params: JournalEntriesParams = {
@@ -143,13 +147,12 @@ export default function JournalEntriesPage() {
             .run(params);
 
           if (response?.output?.records) {
-            // Add the account ID to each entry
             const entriesWithAccount = response.output.records.map(
               (entry: JournalEntry) => ({
                 ...entry,
                 fields: {
                   ...entry.fields,
-                  account: accountId, // Add the account ID to each entry
+                  account: accountId,
                 },
               })
             );
@@ -164,7 +167,6 @@ export default function JournalEntriesPage() {
         }
       }
 
-      // Remove duplicates based on ID
       const uniqueEntries = Array.from(
         new Map(allEntries.map((entry) => [entry.id, entry])).values()
       );
@@ -176,12 +178,12 @@ export default function JournalEntriesPage() {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [accountIds, useFromDate, fromDate, useToDate, toDate, integrationApp]);
 
   // Fetch entries on initial load
   React.useEffect(() => {
     fetchJournalEntries();
-  }, [fetchJournalEntries]); // Add fetchJournalEntries to dependency array
+  }, [fetchJournalEntries]);
 
   return (
     <div className="container mx-auto py-10">
