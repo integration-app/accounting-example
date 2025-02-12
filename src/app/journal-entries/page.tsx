@@ -181,7 +181,7 @@ export default function JournalEntriesPage() {
   // Fetch entries on initial load
   React.useEffect(() => {
     fetchJournalEntries();
-  }, []); // Empty dependency array for initial load only
+  }, [fetchJournalEntries]); // Add fetchJournalEntries to dependency array
 
   return (
     <div className="container mx-auto py-10">

@@ -1,8 +1,8 @@
-import { Connection, Promise } from 'mongoose'
+import { Connection, Promise } from "mongoose";
 
 declare global {
-  var mongoose: {
-    conn: Connection | null
-    promise: Promise<Connection> | null
-  }
-} 
+  let mongoose: {
+    conn: Connection | null;
+    promise: Promise<Connection> | null;
+  };
+}
