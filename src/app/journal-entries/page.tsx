@@ -51,7 +51,7 @@ const formatDate = (dateString: string | null | undefined) => {
   }
 
   try {
-    // Try parsing as ISO date first
+    // Try parsing as ISO date first.
     const date = parseISO(dateString);
     if (isValid(date)) {
       return format(date, "M/d/yyyy");
