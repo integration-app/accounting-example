@@ -2,16 +2,19 @@ import { NextResponse } from "next/server";
 import { connectDB } from "@/lib/mongodb";
 import { Category } from "@/models/Category";
 
-export async function PATCH(
-  request: Request,
-  context: { params: { id: string } }
-) {
+interface RouteContext {
+  params: {
+    id: string;
+  };
+}
+
+export async function PATCH(request: Request, { params }: RouteContext) {
   try {
     const { accountId } = await request.json();
     await connectDB();
 
     const updatedCategory = await Category.findByIdAndUpdate(
-      context.params.id,
+      params.id,
       { accountId },
       { new: true }
     );
