@@ -4,14 +4,15 @@ import { Category } from "@/models/Category";
 
 export async function PATCH(
   request: NextRequest,
-  context: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const { accountId } = await request.json();
     await connectDB();
 
     const updatedCategory = await Category.findByIdAndUpdate(
-      context.params.id,
+      id,
       { accountId },
       { new: true }
     );

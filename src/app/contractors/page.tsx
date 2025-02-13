@@ -20,8 +20,8 @@ import {
 } from "@/components/ui/select";
 import useSWR from "swr";
 import { useIntegrationApp } from "@integration-app/react";
-import LoadingSpinner from '@/components/LoadingSpinner';
-import { toast } from '@/components/ui/use-toast';
+import LoadingSpinner from "@/components/LoadingSpinner";
+import { toast } from "@/components/ui/use-toast";
 
 interface Vendor {
   id: string;
@@ -41,14 +41,15 @@ export default function ContractorsPage() {
   const integrationApp = useIntegrationApp();
 
   // Fetch contractors from our API
-  const { data: contractors, isLoading: isContractorsLoading, mutate: mutateContractors } = useSWR<Contractor[]>(
-    '/api/contractors',
-    async (url) => {
-      const response = await fetch(url);
-      if (!response.ok) throw new Error('Failed to fetch contractors');
-      return response.json();
-    }
-  );
+  const {
+    data: contractors,
+    isLoading: isContractorsLoading,
+    mutate: mutateContractors,
+  } = useSWR<Contractor[]>("/api/contractors", async (url: string) => {
+    const response = await fetch(url);
+    if (!response.ok) throw new Error("Failed to fetch contractors");
+    return response.json();
+  });
 
   // Fetch vendors from Integration.app
   const { data: vendorsResponse, isLoading: isVendorsLoading } = useSWR(
@@ -85,15 +86,15 @@ export default function ContractorsPage() {
   const handleVendorChange = async (contractorId: string, vendorId: string) => {
     try {
       const response = await fetch(`/api/contractors/${contractorId}`, {
-        method: 'PATCH',
+        method: "PATCH",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({ vendorId }),
       });
 
       if (!response.ok) {
-        throw new Error('Failed to update contractor');
+        throw new Error("Failed to update contractor");
       }
 
       // Revalidate the contractors data
@@ -104,7 +105,7 @@ export default function ContractorsPage() {
         description: "Contractor mapping updated successfully",
       });
     } catch (error) {
-      console.error('Error updating contractor:', error);
+      console.error("Error updating contractor:", error);
       toast({
         title: "Error",
         description: "Failed to update contractor mapping",
@@ -116,15 +117,15 @@ export default function ContractorsPage() {
   const handleUnmap = async (contractorId: string) => {
     try {
       const response = await fetch(`/api/contractors/${contractorId}`, {
-        method: 'PATCH',
+        method: "PATCH",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({ vendorId: null }),
       });
 
       if (!response.ok) {
-        throw new Error('Failed to unmap contractor');
+        throw new Error("Failed to unmap contractor");
       }
 
       await mutateContractors();
@@ -134,7 +135,7 @@ export default function ContractorsPage() {
         description: "Contractor unmapped successfully",
       });
     } catch (error) {
-      console.error('Error unmapping contractor:', error);
+      console.error("Error unmapping contractor:", error);
       toast({
         title: "Error",
         description: "Failed to unmap contractor",

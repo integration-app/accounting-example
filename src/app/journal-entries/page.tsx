@@ -1,6 +1,7 @@
 "use client";
 
 import * as React from "react";
+import { Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import { useIntegrationApp } from "@integration-app/react";
 import {
@@ -16,6 +17,7 @@ import { Input } from "@/components/ui/input";
 import { format, isValid, parseISO } from "date-fns";
 import { Checkbox } from "@/components/ui/checkbox";
 import { ChevronLeft, ChevronRight } from "lucide-react";
+import LoadingSpinner from "@/components/LoadingSpinner";
 
 interface Account {
   id: string;
@@ -71,7 +73,7 @@ const formatDate = (dateString: string | null | undefined) => {
   }
 };
 
-export default function JournalEntriesPage() {
+function JournalEntriesContent() {
   const searchParams = useSearchParams();
   const integrationApp = useIntegrationApp();
 
@@ -341,5 +343,19 @@ export default function JournalEntriesPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function JournalEntriesPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="flex items-center justify-center min-h-screen">
+          <LoadingSpinner />
+        </div>
+      }
+    >
+      <JournalEntriesContent />
+    </Suspense>
   );
 }
