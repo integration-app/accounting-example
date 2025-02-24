@@ -3,17 +3,14 @@ import { ConfigTabs } from "./components/config-tabs";
 import { ContractorsTab } from "./components/contractors-tab";
 import { AccountsTab } from "./components/accounts-tab";
 
-interface IntegrationPageProps {
-  params: {
-    key: string;
-  };
-}
-
-const capitalize = (str: string) => str.charAt(0).toUpperCase() + str.slice(1);
-
-export default function IntegrationPage({ params }: IntegrationPageProps) {
+export default async function IntegrationPage({
+  params,
+}: {
+  params: Promise<{ key: string }>;
+}) {
+  const integrationKey = (await params).key;
   // Only allow netsuite for now
-  if (params.key !== "netsuite") {
+  if (integrationKey !== "netsuite") {
     notFound();
   }
 
@@ -31,7 +28,8 @@ export default function IntegrationPage({ params }: IntegrationPageProps) {
   return (
     <div className="space-y-6">
       <h1 className="text-2xl font-semibold tracking-tight">
-        {capitalize(params.key)} Configuration
+        {integrationKey.charAt(0).toUpperCase() + integrationKey.slice(1)}{" "}
+        Configuration
       </h1>
       <ConfigTabs tabs={tabs} />
     </div>
