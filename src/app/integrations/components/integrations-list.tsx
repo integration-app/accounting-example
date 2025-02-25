@@ -63,7 +63,7 @@ export function IntegrationList() {
                 {integration.connection && (
                   <Link
                     href={`/integrations/${integration.key}`}
-                    className="inline-flex items-center gap-2 px-4 py-2 rounded-md bg-gray-100 hover:bg-gray-200 text-gray-900 font-medium transition-colors"
+                    className="inline-flex items-center gap-2 px-4 py-2 rounded-md bg-gray-100 text-gray-600 hover:bg-blue-100 hover:text-blue-700 font-medium transition-colors"
                   >
                     <Settings className="h-4 w-4" />
                     Configure

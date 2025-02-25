@@ -32,7 +32,7 @@ function InvoicesPage() {
   };
 
   return (
-    <div className="container mx-auto py-10">
+    <div className="container mx-auto py-6">
       <div className="flex flex-col gap-4">
         <div className="flex justify-between items-center">
           <div>

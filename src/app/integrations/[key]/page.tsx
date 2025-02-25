@@ -26,8 +26,8 @@ export default async function IntegrationPage({
   ];
 
   return (
-    <div className="space-y-6">
-      <h1 className="text-2xl font-semibold tracking-tight">
+    <div className="space-y-6 py-6">
+      <h1 className="text-3xl font-bold tracking-tight">
         {integrationKey.charAt(0).toUpperCase() + integrationKey.slice(1)}{" "}
         Configuration
       </h1>

@@ -177,7 +177,7 @@ export function ContractorsTab() {
                           className="text-gray-500"
                         />
                       </SelectTrigger>
-                      <SelectContent className="bg-white border border-gray-300 shadow-lg">
+                      <SelectContent className="bg-white border border-gray-300 shadow-lg max-h-[300px] overflow-y-auto">
                         {vendors.map((vendor) => (
                           <SelectItem
                             key={vendor.id}

@@ -10,7 +10,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { ChevronLeft, ChevronRight, X } from "lucide-react";
 import {
   Select,
   SelectContent,
@@ -152,27 +152,42 @@ export function AccountsTab() {
                 </TableCell>
                 <TableCell>{category.name}</TableCell>
                 <TableCell>
-                  <Select
-                    value={category.accountId}
-                    onValueChange={(value: string) =>
-                      handleAccountChange(category.id, value)
-                    }
-                  >
-                    <SelectTrigger className="w-[240px] bg-white text-gray-900 border-gray-300 hover:bg-blue-50 cursor-pointer">
-                      <SelectValue placeholder="Select account" />
-                    </SelectTrigger>
-                    <SelectContent className="bg-white border border-gray-300 shadow-lg max-h-[300px] overflow-y-auto">
-                      {accounts.map((account) => (
-                        <SelectItem
-                          key={account.id}
-                          value={account.id}
-                          className="text-gray-900 cursor-pointer hover:bg-blue-50 hover:text-blue-600"
+                  <div className="flex items-center gap-2 w-[300px]">
+                    <Select
+                      value={category.accountId}
+                      onValueChange={(value: string) =>
+                        handleAccountChange(category.id, value)
+                      }
+                    >
+                      <SelectTrigger className="w-[240px] bg-white text-gray-900 border-gray-300 hover:bg-blue-50 cursor-pointer">
+                        <SelectValue placeholder="Select account" />
+                      </SelectTrigger>
+                      <SelectContent className="bg-white border border-gray-300 shadow-lg max-h-[300px] overflow-y-auto">
+                        {accounts.map((account) => (
+                          <SelectItem
+                            key={account.id}
+                            value={account.id}
+                            className="text-gray-900 cursor-pointer hover:bg-blue-50 hover:text-blue-600"
+                          >
+                            {account.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <div className="w-8">
+                      {category.accountId && (
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => handleAccountChange(category.id, "")}
+                          className="h-8 w-8 p-0 hover:bg-red-100 hover:text-red-700"
+                          title="Unmap account"
                         >
-                          {account.name}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                          <X className="h-4 w-4" />
+                        </Button>
+                      )}
+                    </div>
+                  </div>
                 </TableCell>
               </TableRow>
             ))}
