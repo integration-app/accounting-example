@@ -44,8 +44,8 @@ function InvoicesPage() {
               variant="secondary"
               className={
                 isSyncEnabled
-                  ? "bg-red-100 text-red-700 dark:bg-red-700 dark:text-red-100 hover:bg-red-200 hover:text-red-800 dark:hover:bg-red-800 dark:hover:text-red-100"
-                  : "bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-300 hover:bg-blue-100 hover:text-blue-700 dark:hover:bg-blue-700 dark:hover:text-blue-100"
+                  ? "bg-red-100 text-red-700 hover:bg-red-200 hover:text-red-800"
+                  : "bg-gray-100 text-gray-600 hover:bg-blue-100 hover:text-blue-700"
               }
               onClick={handleToggleSync}
             >
@@ -56,7 +56,7 @@ function InvoicesPage() {
               <DialogTrigger asChild>
                 <Button
                   variant="secondary"
-                  className="bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-300 hover:bg-blue-100 hover:text-blue-700 dark:hover:bg-blue-700 dark:hover:text-blue-100"
+                  className="bg-gray-100 text-gray-600 hover:bg-blue-100 hover:text-blue-700"
                 >
                   <Plus className="mr-2 h-4 w-4" />
                   Create Invoice
